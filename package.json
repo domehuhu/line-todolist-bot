@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "api": "node app/api",
-    "api-dev": "./node_modules/.bin/nodemon app/api",
+    "start": "node app/api",
+    "dev": "./node_modules/.bin/nodemon app/api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {

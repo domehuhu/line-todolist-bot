@@ -1,1 +1,1 @@
-bot-api: node app/api.js
+web: npm start
