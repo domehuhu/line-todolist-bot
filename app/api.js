@@ -10,6 +10,9 @@ app.use(errorHandler());
 app.use(bodyParser.json());
 
 const config = {
+    server: {
+        port: process.env.PORT || 3000
+    },
     line: {
         channelToken: process.env.LINE_BOT_CHANNEL_TOKEN,
         channelSecret: process.env.LINE_BOT_CHANNEL_SECRET    
@@ -28,4 +31,4 @@ app.get('/', (req, res) => {
     res.send("hello world.");
 });
 
-app.listen(3000, () => console.log('started.'));
+app.listen(config.server.port, () => console.log(`started. listen on ${config.server.port}`));
