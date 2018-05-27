@@ -8,14 +8,26 @@ class TodoRepo {
         this.connection = connection;
     }
 
+    mapRow(row) {
+        return new Todo(row.task, row.date, row.text, row.createdat, row.updatedat)
+    }
+
+    async findAllByMid() {
+        let query = {
+            text: 'SELECT * FROM todos WHERE mid = $1',
+            values: [id]
+        }
+        let { rows } = await this.connection.query(query);
+        return this.mapRow(rows[0]);
+    }
+
     async findById(id) {
         let query = {
             text: 'SELECT * FROM todos WHERE id = $1',
             values: [id]
         }
         let { rows } = await this.connection.query(query);
-        let row = rows[0];
-        return new Todo(row.task, row.date, row.text, row.createdat, row.updatedat);
+        return this.mapRow(rows[0]);
     }
 
     async findByTask(task) {
@@ -25,7 +37,7 @@ class TodoRepo {
         }
         let { rows } = await this.connection.query(query);
         return rows.map(row => {
-            return new Todo(row.task, row.date, row.text, row.createdat, row.updatedat);
+            return this.mapRow(row);
         });
     }
 
