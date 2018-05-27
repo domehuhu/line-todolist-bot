@@ -57,7 +57,9 @@ describe('Todolist', function () {
         it('edit', async () => {
             const result = await todolist.processText(userId, "edit");
 
-            expect(result).to.be.deep.equal({ type: 'text', text: "editLink."});
+            expect(result.type).to.be.equals('uri');
+            expect(result.label).to.not.be.undefined;
+            expect(result.uri).to.not.be.undefined;
         });
 
         it('list', async () => {

@@ -39,8 +39,9 @@ class Todolist {
 
     editLink(userId) {
         return {
-            type: "text",
-            text: "editLink."
+            type: "uri",
+            label: "editLink.",
+            uri: 'http://google.com'
         };
     }
 
@@ -59,7 +60,7 @@ class Todolist {
             case "list":
                 return this.listTodo(userId);
             default:
-                let todo = await this.addTodo(userId, text);
+                await this.addTodo(userId, text);
                 return {
                     type: 'text',
                     text: `added ${text}`
