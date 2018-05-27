@@ -44,4 +44,22 @@ describe('TodoRepo', function () {
             expect(todoById.task).to.be.equal("task1");
         });
     });
+    describe('findAllByUserId', function () {
+        it ('should return only for userId', async () => {
+            let todos = [
+                new Todo("user1", "task1", moment(), "task1 : date : time", moment(), moment()),
+                new Todo("user1", "task2", moment().subtract(1, 'days'), "task2 : date : time", moment(), moment()),
+                new Todo("user2", "task1", moment(), "task1 : date : time", moment(), moment()),
+                new Todo("user3", "task1", moment(), "task1 : date : time", moment(), moment()),
+                new Todo("user4", "task1", moment(), "task1 : date : time", moment(), moment()),
+            ];
+
+            await Promise.all(todos.map(todo => todoRepo.insert(todo)))
+            let userTodos = await todoRepo.findAllByUserIdOrderByDateAsc("user1");
+
+            expect(userTodos).to.have.length(2);
+            console.log(userTodos);
+            expect(userTodos[0].task).to.be.equal('task2');
+        });
+    });
 });

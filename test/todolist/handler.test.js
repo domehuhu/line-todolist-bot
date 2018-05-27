@@ -60,6 +60,18 @@ describe('Todolist', function () {
             expect(result).to.be.deep.equal({ type: 'text', text: "editLink."});
         });
 
+        it.only('list', async () => {
+            repo.findAllByUserIdOrderByDateAsc = sinon.stub().returns(
+                [
+                    { userId: 'user1', task: 'task1', text: 'text1' },
+                    { userId: 'user1', task: 'task2', text: 'text2' }
+                ]
+            );
+            const result = await todolist.processText(userId, "list");
+
+            expect(result).to.be.deep.equal({ type: 'text', text: "text1\ntext2"});
+        });
+
         it('should handle task : date/month/year : time', async () => {
             let text = 'Buy milk : 3/5/18 : 13:00';
 

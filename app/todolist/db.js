@@ -9,19 +9,22 @@ class TodoRepo {
     }
 
     mapRow(row) {
+        if (!row.userId || !row.task) {
+            throw new Error("row is invalid.");
+        }
         return new Todo(row.userId, row.task, row.date, row.text, row.createdat, row.updatedat)
     }
 
-    async findAllByUserId(userId) {
+    async findAllByUserIdOrderByDateAsc(userId) {
         if (!userId) {
             throw new Error('userId cannot be null.');
         }
         let query = {
-            text: 'SELECT * FROM todos WHERE "userId" = $1',
-            values: [id]
+            text: 'SELECT * FROM todos WHERE "userId" = $1 ORDER BY "date" ASC',
+            values: [userId]
         }
         let { rows } = await this.connection.query(query);
-        return this.mapRow(rows[0]);
+        return rows.map(row => this.mapRow(row));
     }
 
     async findByIdAndUserId(id, userId) {

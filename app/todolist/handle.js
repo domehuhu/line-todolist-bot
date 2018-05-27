@@ -44,9 +44,20 @@ class Todolist {
         };
     }
 
+    async listTodo(userId) {
+        let todos = await this.todoRepo.findAllByUserIdOrderByDateAsc(userId);
+        return {
+            type: 'text',
+            text: todos.map(todo => todo.text).join('\n')
+        };
+    }
+
     async processText(userId, text) {
         if (text === 'edit') {
             return this.editLink();
+        }
+        if (text === 'list') {
+            return this.listTodo(userId);
         }
 
         let todo = await this.addTodo(userId, text);
