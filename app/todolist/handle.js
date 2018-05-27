@@ -40,7 +40,7 @@ class Todolist {
     editLink(userId) {
         return {
             type: "uri",
-            label: "editLink.",
+            // label: "editLink.",
             uri: 'http://google.com'
         };
     }
