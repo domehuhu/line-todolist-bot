@@ -75,20 +75,23 @@ class Todolist {
         if (event.type !== 'message' || event.message.type !== 'text') {
             throw new Error('unkonwn event message type.');
         }
+        let userId = event.source.userId;
+        console.log(`handleLineWebhook begins user=${userId}`);
         let result;
         try {
             result = await this.processText(event.source.userId, event.message.text.trim());
         }
         catch (err) {
-            console.error(err);
+            console.error(`handleLineWebhook error user=${userId}, error=${err.message}`);
             result = {
                 type: 'text',
                 text: "error found. " + err.message
             }
         }
         finally {
+            console.log(`handleLineWebhook ends user=${userId}, result=${result}`);
             if (result) {
-                return this.lineClient.replyMessage(event.replyToken, _.pick(result, ['type', 'text']));
+                return this.lineClient.replyMessage(event.replyToken, result);
             }
             return null;
         }
