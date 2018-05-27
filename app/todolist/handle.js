@@ -39,7 +39,7 @@ class Todolist {
 
     editLink(userId) {
         return {
-            type: "uri",
+            type: "text",
             // label: "editLink.",
             text: 'http://google.com'
         };
