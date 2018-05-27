@@ -41,7 +41,7 @@ class Todolist {
         return {
             type: "uri",
             // label: "editLink.",
-            uri: 'http://google.com'
+            text: 'http://google.com'
         };
     }
 
