@@ -30,16 +30,16 @@ describe('TodoRepo', function () {
 
     describe('insert', function () {
         it ('should insert', async () => {
-            let todo = new Todo("task1", moment(), "task1 : date : time", moment(), moment());
+            let todo = new Todo("user1", "task1", moment(), "task1 : date : time", moment(), moment());
 
             let insertedRows = await todoRepo.insert(todo);
             let id = insertedRows[0].id;
-            let todos = await todoRepo.findByTask("task1");
+            let todos = await todoRepo.findByTaskAndUserId("task1", "user1");
 
             expect(todos.length).to.be.greaterThan(0);
             expect(todos[0].task).to.be.equal("task1");
 
-            let todoById = await todoRepo.findById(id);
+            let todoById = await todoRepo.findByIdAndUserId(id, "user1");
 
             expect(todoById.task).to.be.equal("task1");
         });

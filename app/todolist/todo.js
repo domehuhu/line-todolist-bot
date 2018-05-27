@@ -1,7 +1,8 @@
 'use strict';
 
 module.exports = class Todo {
-    constructor(task, date, text, createdAt, updatedAt) {
+    constructor(userId, task, date, text, createdAt, updatedAt) {
+        this.userId = userId;
         this.task = task;
         this.date = date;
         this.text = text;

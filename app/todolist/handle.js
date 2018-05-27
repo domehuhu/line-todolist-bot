@@ -3,6 +3,7 @@
 const line = require('@line/bot-sdk');
 const express = require('express');
 const moment = require('moment');
+const _ = require('lodash');
 
 const Todo = require('./todo');
 
@@ -12,7 +13,7 @@ class Todolist {
         this.todoRepo = todoRepo;
     }
 
-    async addTodo(text) {
+    async addTodo(userId, text) {
         let token = text.split(' : ').map(s => s.trim());
         if (token.length < 2 || token.length > 3) {
             throw new Error(`command not found. text=${text}, token=${token}`);
@@ -29,45 +30,54 @@ class Todolist {
         }
         let date = moment(`${dateStr} ${timeStr}`, "DD/MM/YY HH:mm").utc();
 
-        let todo = new Todo(task, date, text);
+        let todo = new Todo(userId, task, date, text);
 
         await this.todoRepo.insert(todo);
 
         return todo;
     }
 
-    editLink() {
-        return "editLink";
+    editLink(userId) {
+        return {
+            type: "text",
+            text: "editLink."
+        };
     }
 
-    async processText(text) {
+    async processText(userId, text) {
         if (text === 'edit') {
             return this.editLink();
         }
 
-        let todo = await this.addTodo(text);
-        return `added ${text}`;
+        let todo = await this.addTodo(userId, text);
+        return {
+            type: 'text',
+            text: `added ${text}`
+        };
     }
 
     async handleLineWebhook(event) {
         console.log(event);
-        if (event.type !== 'message' || event.message.type !== 'text') {
-            throw new Error('unkonwn message type: ' + event.type);
+        if (!event.source || event.source.type !== 'user' || !event.source.userId) {
+            throw new Error('unkonwn event source type.');
         }
-        let respText;
+        if (event.type !== 'message' || event.message.type !== 'text') {
+            throw new Error('unkonwn event message type.');
+        }
+        let result;
         try {
-            respText = await this.processText(event.message.text.trim());
+            result = await this.processText(event.source.userId, event.message.text.trim());
         }
         catch (err) {
             console.error(err);
-            respText = "error found. " + err.message;
+            result = {
+                type: 'text',
+                text: "error found. " + err.message
+            }
         }
         finally {
-            if (respText) {
-                return this.lineClient.replyMessage(event.replyToken, {
-                    type: 'text',
-                    text: respText
-                });
+            if (result) {
+                return this.lineClient.replyMessage(event.replyToken, _.pick(result, ['type', 'text']));
             }
             return null;
         }

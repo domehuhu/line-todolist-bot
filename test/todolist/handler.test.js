@@ -13,8 +13,10 @@ describe('Todolist', function () {
     let todolist;
     let line;
     let repo;
+    let userId;
 
     beforeEach(function () {
+        userId = "user1";
         repo = {
             insert: sinon.stub().resolves("OK")
         };
@@ -31,6 +33,7 @@ describe('Todolist', function () {
 
         it('should reply error message if not support.', async () => {
             let event = {
+                source: { userId: 'user1', type: 'user' },
                 type: 'message',
                 message: {
                     type: 'text',
@@ -52,19 +55,19 @@ describe('Todolist', function () {
         });
 
         it('edit', async () => {
-            const result = await todolist.processText("edit");
+            const result = await todolist.processText(userId, "edit");
 
-            expect(result).to.be.equal("editLink");
+            expect(result).to.be.deep.equal({ type: 'text', text: "editLink."});
         });
 
         it('should handle task : date/month/year : time', async () => {
             let text = 'Buy milk : 3/5/18 : 13:00';
 
-            const result = await todolist.processText(text);
+            const result = await todolist.processText(userId, text);
             let todo = await addTodoSpy.returnValues[0];
             console.log(todo);
 
-            expect(result).to.be.equal(`added ${text}`);
+            expect(result).to.deep.equal({ type: 'text', text: `added ${text}`});
             expect(todo.task == 'Buy milk');
             expect(todo.date.format('D/M/YY HH:mm') == '3/5/18 13:00');
             expect(todo.text == text);
@@ -74,10 +77,10 @@ describe('Todolist', function () {
             let text = 'Finsh writing shopping list : today : 15:30';
             let today = moment('HH:mm', '15:30');
 
-            const result = await todolist.processText(text);
+            const result = await todolist.processText(userId, text);
             let todo = await addTodoSpy.returnValues[0];
 
-            expect(result).to.be.equal(`added ${text}`);
+            expect(result).to.deep.equal({ type: 'text', text: `added ${text}`});
             expect(todo.task == 'Buy milk');
             expect(todo.date.format('D/M/YY HH:mm') == today.format('D/M/YY HH:mm'));
             expect(todo.text == text);
@@ -86,10 +89,10 @@ describe('Todolist', function () {
             let text = 'Watch movie : tommorrow : 18:00';
             let tomorrow = moment('HH:mm', '18:00').add(1, 'days');
 
-            const result = await todolist.processText(text);
+            const result = await todolist.processText(userId, text);
             let todo = await addTodoSpy.returnValues[0];
 
-            expect(result).to.be.equal(`added ${text}`);
+            expect(result).to.deep.equal({ type: 'text', text: `added ${text}`});
             expect(todo.task == 'Watch movie');
             expect(todo.date.format('D/M/YY HH:mm') == tomorrow.format('D/M/YY HH:mm'));
             expect(todo.text == text);
@@ -98,10 +101,10 @@ describe('Todolist', function () {
         it('should use default time as 12:00 pm', async () => {
             let text = 'Buy milk : 3/5/18';
 
-            const result = await todolist.processText(text);
+            const result = await todolist.processText(userId, text);
             let todo = await addTodoSpy.returnValues[0];
 
-            expect(result).to.be.equal(`added ${text}`);
+            expect(result).to.deep.equal({ type: 'text', text: `added ${text}`});
             expect(todo.task == 'Buy milk');
             expect(todo.date.format('D/M/YY HH:mm') == '3/5/18 12:00');
             expect(todo.text == text);
