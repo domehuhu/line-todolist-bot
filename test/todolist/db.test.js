@@ -58,7 +58,6 @@ describe('TodoRepo', function () {
             let userTodos = await todoRepo.findAllByUserIdOrderByDateAsc("user1");
 
             expect(userTodos).to.have.length(2);
-            console.log(userTodos);
             expect(userTodos[0].task).to.be.equal('task2');
         });
     });

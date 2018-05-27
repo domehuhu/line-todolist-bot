@@ -53,18 +53,18 @@ class Todolist {
     }
 
     async processText(userId, text) {
-        if (text === 'edit') {
-            return this.editLink();
+        switch (text) {
+            case "edit":
+                return this.editLink(userId);
+            case "list":
+                return this.listTodo(userId);
+            default:
+                let todo = await this.addTodo(userId, text);
+                return {
+                    type: 'text',
+                    text: `added ${text}`
+                };
         }
-        if (text === 'list') {
-            return this.listTodo(userId);
-        }
-
-        let todo = await this.addTodo(userId, text);
-        return {
-            type: 'text',
-            text: `added ${text}`
-        };
     }
 
     async handleLineWebhook(event) {

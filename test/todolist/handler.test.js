@@ -60,7 +60,7 @@ describe('Todolist', function () {
             expect(result).to.be.deep.equal({ type: 'text', text: "editLink."});
         });
 
-        it.only('list', async () => {
+        it('list', async () => {
             repo.findAllByUserIdOrderByDateAsc = sinon.stub().returns(
                 [
                     { userId: 'user1', task: 'task1', text: 'text1' },
