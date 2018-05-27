@@ -13,6 +13,8 @@ describe('TodoRepo', function () {
 
     let connection;
     let todoRepo;
+    let todo;
+    let userId;
 
     beforeEach( async () => {
         connection = pg({
@@ -20,7 +22,11 @@ describe('TodoRepo', function () {
             ssl: false
         });
         todoRepo = TodoRepo(connection);
+        userId = "user1";
+        todo = new Todo(userId, "task1", moment(), "task1 : date : time", moment(), moment());
+
         await connection.query('BEGIN');
+
     });
 
     afterEach(async () => {
@@ -30,16 +36,14 @@ describe('TodoRepo', function () {
 
     describe('insert', function () {
         it ('should insert', async () => {
-            let todo = new Todo("user1", "task1", moment(), "task1 : date : time", moment(), moment());
 
-            let insertedRows = await todoRepo.insert(todo);
-            let id = insertedRows[0].id;
-            let todos = await todoRepo.findByTaskAndUserId("task1", "user1");
+            let id = await todoRepo.insert(todo);
+            let todos = await todoRepo.findByTaskAndUserId("task1", userId);
 
             expect(todos.length).to.be.greaterThan(0);
             expect(todos[0].task).to.be.equal("task1");
 
-            let todoById = await todoRepo.findByIdAndUserId(id, "user1");
+            let todoById = await todoRepo.findByIdAndUserId(id, userId);
 
             expect(todoById.task).to.be.equal("task1");
         });
@@ -47,18 +51,36 @@ describe('TodoRepo', function () {
     describe('findAllByUserId', function () {
         it ('should return only for userId', async () => {
             let todos = [
-                new Todo("user1", "task1", moment(), "task1 : date : time", moment(), moment()),
-                new Todo("user1", "task2", moment().subtract(1, 'days'), "task2 : date : time", moment(), moment()),
+                new Todo(userId, "task1", moment(), "task1 : date : time", moment(), moment()),
+                new Todo(userId, "task2", moment().subtract(1, 'days'), "task2 : date : time", moment(), moment()),
                 new Todo("user2", "task1", moment(), "task1 : date : time", moment(), moment()),
                 new Todo("user3", "task1", moment(), "task1 : date : time", moment(), moment()),
                 new Todo("user4", "task1", moment(), "task1 : date : time", moment(), moment()),
             ];
 
             await Promise.all(todos.map(todo => todoRepo.insert(todo)))
-            let userTodos = await todoRepo.findAllByUserIdOrderByDateAsc("user1");
+            let userTodos = await todoRepo.findAllByUserIdOrderByDateAsc(userId);
 
             expect(userTodos).to.have.length(2);
             expect(userTodos[0].task).to.be.equal('task2');
         });
     });
+
+    describe('setFlags', function () {
+        it ('should flag star properly', async () => {
+            let id = await todoRepo.insert(todo);
+
+            let userTodo = await todoRepo.findByIdAndUserId(id, userId);
+            expect(userTodo.staredAt).to.be.null;
+
+            todoRepo.setFlag(userId, id, "staredAt", moment());
+            userTodo = await todoRepo.findByIdAndUserId(id, userId);
+            expect(userTodo.staredAt).to.not.be.null;
+
+            todoRepo.setFlag(userId, id, "staredAt", null);
+            userTodo = await todoRepo.findByIdAndUserId(id, userId);
+            expect(userTodo.staredAt).to.be.null;
+        });
+    });
+
 });

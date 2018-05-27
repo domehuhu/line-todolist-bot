@@ -97,6 +97,19 @@ class Todolist {
             return null;
         }
     }
+
+    async star(userId, todoId) {
+        return this.todoRepo.setFlag(userId, todoId, "staredAt", moment());
+    }
+    async unstar(userId, todoId) {
+        return this.todoRepo.setFlag(userId, todoId, "staredAt", null);
+    }
+    async complete(userId, todoId) {
+        return this.todoRepo.setFlag(userId, todoId, "completedAt", moment());
+    }
+    async uncomplete(userId, todoId) {
+        return this.todoRepo.setFlag(userId, todoId, "completedAt", null);
+    }
 }
 
 module.exports = function (lineClient, pgClient) {

@@ -12,7 +12,38 @@ class TodoRepo {
         if (!row.userId || !row.task) {
             throw new Error("row is invalid.");
         }
-        return new Todo(row.userId, row.task, row.date, row.text, row.createdat, row.updatedat)
+        return new Todo(row.userId, row.task, row.date, row.text,
+            row.createdat, row.updatedat, row.completedAt, row.staredAt);
+    }
+
+    async setFlag(userId, todoId, fieldName, value) {
+        if (!userId) {
+            throw new Error('userId cannot be null.');
+        }
+        if (!todoId) {
+            throw new Error('todoId cannot be null.');
+        }
+        if (!fieldName) {
+            throw new Error('fieldName cannot be null.');
+        }
+        let query = {
+            text: `UPDATE todos SET "${fieldName}" = $1 WHERE "userId" = $2 AND "id" = $3`,
+            values: [value, userId, todoId]
+        }
+        let { rows } = await this.connection.query(query);
+        return rows;
+    }
+
+    async findAllIncompletedByUserIdOrderByDateAsc(userId) {
+        if (!userId) {
+            throw new Error('userId cannot be null.');
+        }
+        let query = {
+            text: 'SELECT * FROM todos WHERE "userId" = $1 AND "completed" = $1 ORDER BY "stared" DESC, "date" ASC',
+            values: [userId]
+        }
+        let { rows } = await this.connection.query(query);
+        return rows.map(row => this.mapRow(row));
     }
 
     async findAllByUserIdOrderByDateAsc(userId) {
@@ -65,7 +96,7 @@ class TodoRepo {
             values: [todo.userId, todo.task, todo.date, todo.text, moment(), moment()]
         }
         let { rows } = await this.connection.query(query);
-        return rows;
+        return rows[0].id;
     }
 }
 
